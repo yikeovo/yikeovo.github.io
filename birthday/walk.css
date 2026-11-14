@@ -19,3 +19,7 @@ dialog{border:1px solid #f3efe144;border-radius:5px;padding:0;background:#f5f1e8
 .rotate-prompt p{font:22px/1.9 var(--serif);letter-spacing:3px;margin:0}
 .rotate-prompt small{display:block;font:11px/2 var(--sans);letter-spacing:1px;color:#e0e1d3aa;margin-top:10px}
 .rotate-dismiss{border:1px solid #e6dfc566;background:transparent;color:#f4eddb;border-radius:3px;padding:12px 22px;font-size:11px;letter-spacing:2px;min-height:46px}
+
+/* 横屏按钮：仅触屏设备显示，点一下回到横屏全屏 */
+#landscape-btn{display:none}
+@media(pointer:coarse){#landscape-btn{display:flex}}

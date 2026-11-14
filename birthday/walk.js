@@ -31,6 +31,10 @@ async function tryLandscapeLock(){
   addEventListener('resize',sync);
   $('rotate-dismiss').addEventListener('click',()=>{try{sessionStorage.setItem('laojia-birthday:rotate-dismissed','1');}catch(e){}prompt.hidden=true;});
 })();
+
+// 点进页面第一次触摸就尽力切横屏，不必等到点“开始”（点“竖屏继续”时不锁，尊重这次选择）
+const armLandscapeLock=event=>{if(event.target.closest&&event.target.closest('#rotate-dismiss'))return;removeEventListener('pointerdown',armLandscapeLock);tryLandscapeLock();};
+addEventListener('pointerdown',armLandscapeLock);
 function setText(id,value){const node=$(id);if(node.textContent!==value)node.textContent=value;}
 const content = window.BIRTHDAY_CONTENT;
 const storyDialog = $('story-dialog');
@@ -43,9 +47,7 @@ const look = { pointer: null, x: 0, y: 0, startX: 0, startY: 0, distance: 0 };
 let world, active = false, target = null, lastTime = performance.now(), elapsed = 0, frame = 0;
 let toastTimer, currentPhoto = 0, music, musicOn = false;
 const seenPhotos=new Set();
-const hintButtons=new Map();
-let hintCamera='';
-let lastHud=0,lastActivityRevision=-1,lastHints=0;
+let lastHud=0,lastActivityRevision=-1;
 let lastLookTime=0,lastFpsTime=0,lastFpsCount=0,lastRenderedAt=0,fpsFrames=0,fpsMotionMs=0;
 try{const saved=JSON.parse(localStorage.getItem('laojia-birthday:photos'))||[];if(Array.isArray(saved))saved.forEach(index=>{if(Number.isInteger(index)&&index>=0&&index<content.photos.length)seenPhotos.add(index);});}catch{}
 function updateJourney(){
@@ -282,23 +284,6 @@ joystick.addEventListener('pointerup', releaseJoystick);
 joystick.addEventListener('pointercancel', releaseJoystick);
 
 
-function updateObjectHints(){
-  const camera=world.camera,key=[camera.position.x,camera.position.y,camera.position.z,camera.rotation.x,camera.rotation.y,camera.fov,innerWidth,innerHeight,world.activities.revision].join(',');
-  if(hintCamera===key)return;
-  hintCamera=key;
-  const nearby=world.nearby(),visible=new Set(nearby.map(item=>item.data.id));
-  hintButtons.forEach((button,id)=>{button.hidden=!visible.has(id);});
-  const names={photo:'看照片',album:'翻相册',birthday:'过生日',letter:'读封信',kitchen:'写道菜',memory:'回忆本',music:'听《'+content.radioTrack.title+'》'};
-  for(const item of nearby){
-    let button=hintButtons.get(item.data.id);
-    if(!button){const actions={tea:'倒杯茶',sit:'坐一会儿',tv:'开关电视',water:'浇浇花',drawer:'拉开抽屉',lamp:'开关台灯'};button=el('button','world-object-hint');button.type='button';button.setAttribute('aria-label',item.data.title);button.append(el('span','','＋'),el('span','',actions[item.data.action]||names[item.data.kind]||item.data.title));button.addEventListener('click',event=>{
-      const fresh=world.nearby().find(candidate=>candidate.data.id===item.data.id);
-      const aligned=fresh&&(!event.detail||Math.hypot(fresh.x*innerWidth-event.clientX,fresh.y*innerHeight-event.clientY)<50);
-      activate(aligned?item.data:world.pick(event.clientX,event.clientY));
-    });hintButtons.set(item.data.id,button);$('object-hints').append(button);}
-    button.hidden=false;button.setAttribute('aria-label',item.data.title);button.style.left=item.x*100+'%';button.style.top=item.y*100+'%';
-  }
-}
 function animate(now) {
   requestAnimationFrame(animate);
   if (!world) return;
@@ -306,7 +291,6 @@ function animate(now) {
   lastTime = now; elapsed += delta; frame++;
   if (!paused()) {
     if(arrival?.running||roomGuide?.running){(arrival?.running?arrival:roomGuide).tick(delta);world.observeFrame(rawMs,true);}else{
-    if(mouseLook.state!=='locked'&&now-lastHints>120){updateObjectHints();lastHints=now;}
     let forward = joy.y + (keys.has('KeyW') || keys.has('ArrowUp') ? 1 : 0) - (keys.has('KeyS') || keys.has('ArrowDown') ? 1 : 0);
     let right = joy.x + (keys.has('KeyD') || keys.has('ArrowRight') ? 1 : 0) - (keys.has('KeyA') || keys.has('ArrowLeft') ? 1 : 0);
     const length = Math.hypot(forward, right);
@@ -367,6 +351,7 @@ async function init() {
       if(guided)startGuidedWalk();else mouseLook.request();
     };
     $('begin').addEventListener('click',()=>enterHome(false));$('begin-guided').addEventListener('click',()=>enterHome(true));
+    $('landscape-btn').addEventListener('click',async()=>{await tryLandscapeLock();if(!document.fullscreenElement&&matchMedia('(orientation:portrait)').matches)notify('当前浏览器不支持自动横屏，手动把手机横过来试试。');});
     lastTime = performance.now(); requestAnimationFrame(animate);
     addEventListener('resize', () => world.resize());
   } catch (error) {
