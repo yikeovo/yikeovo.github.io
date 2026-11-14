@@ -13,6 +13,24 @@ installTouchButtons();
 installIcons();
 
 const $ = (id) => document.getElementById(id);
+// 横屏体验：触屏设备竖屏时提示旋转手机；点“开始”时尽力锁定横屏（安卓 Chrome 需先全屏；iOS 不支持锁定，仅作提示）
+async function tryLandscapeLock(){
+  if(!matchMedia('(pointer:coarse)').matches)return;
+  try{
+    if(document.fullscreenEnabled&&!document.fullscreenElement){await document.documentElement.requestFullscreen().catch(()=>{});}
+    if(screen.orientation&&screen.orientation.lock){await screen.orientation.lock('landscape').catch(()=>{});}
+  }catch(e){}
+}
+(function setupRotatePrompt(){
+  const prompt=$('rotate-prompt');if(!prompt||!matchMedia('(pointer:coarse)').matches)return;
+  const isPortrait=()=>matchMedia('(orientation:portrait)').matches;
+  const dismissed=()=>{try{return sessionStorage.getItem('laojia-birthday:rotate-dismissed')==='1';}catch(e){return false;}};
+  const sync=()=>{prompt.hidden=!(isPortrait()&&!dismissed());};
+  sync();
+  addEventListener('orientationchange',()=>setTimeout(sync,300));
+  addEventListener('resize',sync);
+  $('rotate-dismiss').addEventListener('click',()=>{try{sessionStorage.setItem('laojia-birthday:rotate-dismissed','1');}catch(e){}prompt.hidden=true;});
+})();
 function setText(id,value){const node=$(id);if(node.textContent!==value)node.textContent=value;}
 const content = window.BIRTHDAY_CONTENT;
 const storyDialog = $('story-dialog');
@@ -344,6 +362,7 @@ async function init() {
     $('begin-guided').disabled=false;if(matchMedia('(prefers-reduced-motion: reduce)').matches)$('guided-label').textContent='直接去生日桌';
     window.__HOME__ = { world, get active() { return active; }, get frame() { return frame; }, get paused() { return paused(); },get guide(){return arrival.state;},get navigation(){return roomGuide.state;},get exploration(){return homeGuide.state;} };
     const enterHome=guided=>{
+      tryLandscapeLock();
       active = true; world.openGate(); $('welcome').hidden = true; $('dedication').hidden = true; $('hud').hidden = false; $('top-actions').hidden = false; canvas.focus({ preventScroll: true });
       if(guided)startGuidedWalk();else mouseLook.request();
     };

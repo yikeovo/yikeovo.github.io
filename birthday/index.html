@@ -7,7 +7,7 @@
   <meta name="description" content="从老家的门口出发，走进记忆里的房间，看看照片，为爸爸过生日。">
   <title>回家 · 给爸爸的生日礼物</title>
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="walk.css?v=22">
+  <link rel="stylesheet" href="walk.css?v=23">
   <link rel="stylesheet" href="polish.css?v=22">
   <link rel="stylesheet" href="celebration.css?v=22">
   <link rel="stylesheet" href="birthday-show.css?v=22">
@@ -16,7 +16,7 @@
   <link rel="stylesheet" href="home-guide.css?v=22">
   <script type="importmap">{"imports":{"three":"./vendor/three.module.js"}}</script>
   <script src="content.js?v=22" defer></script>
-  <script type="module" src="walk.js?v=22"></script>
+  <script type="module" src="walk.js?v=23"></script>
 </head>
 <body>
   <main id="experience" aria-label="可自由行走的三维老家">
@@ -94,6 +94,11 @@
       <div class="keepsake-footer"><button id="card-review" class="card-footer-link">看看预览 ↑</button><button id="card-back" class="card-footer-link">回到生日桌</button><button id="card-download" class="paper-button">保存这张纪念卡 ↓</button></div>
     </div>
   </dialog>
+  <div class="rotate-prompt" id="rotate-prompt" hidden role="dialog" aria-label="横屏提示">
+    <div class="rotate-phone" aria-hidden="true"></div>
+    <p>把手机横过来<small>横屏走一走，房间看得更全</small></p>
+    <button id="rotate-dismiss" class="rotate-dismiss">竖屏继续 ↗</button>
+  </div>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 </body>
 </html>

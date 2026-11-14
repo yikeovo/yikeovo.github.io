@@ -9,3 +9,13 @@ dialog{border:1px solid #f3efe144;border-radius:5px;padding:0;background:#f5f1e8
 @media(max-height:600px) and (orientation:landscape){.welcome-copy{padding-block:80px}.welcome h1{font-size:38px;margin-bottom:12px;line-height:1.3}.kicker{margin-bottom:14px}.welcome-description{margin-bottom:15px;font-size:10px}.begin-button{min-height:42px;padding:10px 17px}.welcome-bottom{bottom:14px}.loading-track{margin-top:10px}.joystick{bottom:25px;transform:scale(.85);transform-origin:bottom left}.location{top:83px}.interaction-prompt{bottom:70px}.look-hint{bottom:60px}.bottom-actions{bottom:110px}.walk-hint{bottom:14px}.mini-map{bottom:80px}}
 @media(max-height:700px) and (max-width:600px){.welcome-copy{padding:75px 24px}.welcome h1{font-size:38px;line-height:1.35;margin-bottom:18px}.kicker{margin-bottom:17px}.welcome-description{font-size:10px;margin-bottom:20px}.begin-button{min-height:48px;padding:11px 17px}.loading-track{margin-top:12px}.welcome-bottom>span:last-child{display:none}.loading-note{font-size:7px}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important}}
+
+/* 横屏提示：仅触屏设备竖屏时显示 */
+.rotate-prompt{position:fixed;inset:0;z-index:40;display:none;flex-direction:column;align-items:center;justify-content:center;gap:24px;background:#1d2a26f2;color:#f4eddb;text-align:center;padding:30px}
+@media(pointer:coarse) and (orientation:portrait){.rotate-prompt:not([hidden]){display:flex}}
+.rotate-phone{width:52px;height:88px;border:2px solid #e9d9b5;border-radius:8px;position:relative;animation:rotateHint 2.4s ease-in-out infinite}
+.rotate-phone::after{content:'';position:absolute;left:50%;bottom:7px;transform:translateX(-50%);width:14px;height:3px;border-radius:2px;background:#e9d9b5}
+@keyframes rotateHint{0%,25%{transform:rotate(0)}65%,100%{transform:rotate(90deg)}}
+.rotate-prompt p{font:22px/1.9 var(--serif);letter-spacing:3px;margin:0}
+.rotate-prompt small{display:block;font:11px/2 var(--sans);letter-spacing:1px;color:#e0e1d3aa;margin-top:10px}
+.rotate-dismiss{border:1px solid #e6dfc566;background:transparent;color:#f4eddb;border-radius:3px;padding:12px 22px;font-size:11px;letter-spacing:2px;min-height:46px}
