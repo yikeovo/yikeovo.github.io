@@ -1,9 +1,9 @@
 import * as THREE from './vendor/three.module.js';
 import { RoundedBoxGeometry } from './vendor/RoundedBoxGeometry.js';
 import { batchStaticScene,batchLocalRoot } from './scene-batches.js?v=22';
-import { createMaterials, labelTexture,finishSurfaceMaterials } from './materials.js?v=22';
-import {loadQualityAssets} from './quality-assets.js?v=22';
-import {applyLightmaps} from './lightmaps.js?v=22';
+import { createMaterials, labelTexture,finishSurfaceMaterials } from './materials.js?v=25';
+import {loadQualityAssets} from './quality-assets.js?v=25';
+import {applyLightmaps} from './lightmaps.js?v=25';
 import {createHomeActivities} from './activities.js?v=22';
 import {HOUSE,ENTRY,YARD,TOILETS,STAIRS,BLACK_ROOM,RAMP,START,ROOM_AREAS,PORTALS,WINDOWS,FURNITURE as F,MAP_BOUNDS} from './layout.js?v=22';
 import {prepareSoftwareMaterials,warmRenderer,supportsHardwareAA} from './performance.js?v=22';
@@ -16,10 +16,15 @@ export {HOUSE,ROOM_AREAS};
 export async function createHomeWorld(canvas, photos, onProgress) {
   const coarse = matchMedia('(pointer:coarse)').matches;
   const bakeMode=new URLSearchParams(window.location.search).has('bake');
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: supportsHardwareAA(), powerPreference: 'high-performance', preserveDrawingBuffer: false });
+  window.HOME_STARTUP?.stage('连接三维显示');
+  let renderer;
+  try{renderer=new THREE.WebGLRenderer({ canvas, antialias: supportsHardwareAA(), powerPreference: 'high-performance', preserveDrawingBuffer: false });}
+  catch(cause){const error=new Error('浏览器无法创建 WebGL 2 画面');error.code='WEBGL_UNAVAILABLE';error.cause=cause;throw error;}
+  canvas.addEventListener('webglcontextlost',()=>{const error=new Error('WebGL context lost');error.code='WEBGL_CONTEXT_LOST';window.HOME_STARTUP?.fail(error);});
   let quality = 'detail';
   const debugExtension=renderer.getContext().getExtension('WEBGL_debug_renderer_info');
   const backend=debugExtension?renderer.getContext().getParameter(debugExtension.UNMASKED_RENDERER_WEBGL):'';
+  if(window.HOME_STARTUP)window.HOME_STARTUP.state.graphics={renderer:backend,maxTextureSize:renderer.capabilities.maxTextureSize};
   const softwareBackend=/SwiftShader|llvmpipe|software|Basic Render Driver/i.test(backend);
   let adaptiveScale=1,frameAverage=16,slowFrames=0,lastAdaptation=0,stillSharp=false,lastVisualMotion=performance.now();
   const resolution = () => {
@@ -45,6 +50,7 @@ export async function createHomeWorld(canvas, photos, onProgress) {
   camera.position.set(...START.position);
   camera.rotation.order = 'YXZ';
   camera.lookAt(...START.lookAt);
+  window.HOME_STARTUP?.stage('搬回家里的家具');
   const assets=await loadQualityAssets(renderer,value=>onProgress?.(value*.7));
   scene.environment=assets.environment;
   scene.background=assets.background;scene.backgroundBlurriness=.035;scene.backgroundIntensity=.65;scene.backgroundRotation.y=1.3;
@@ -61,6 +67,7 @@ export async function createHomeWorld(canvas, photos, onProgress) {
   sun.shadow.normalBias = .035;
   sun.shadow.radius = 3;
   scene.add(sun, sun.target);
+  window.HOME_STARTUP?.stage('摆好照片和房间陈设');
   const m = await createMaterials(renderer, photos, value=>onProgress?.(.7+value*.25));
   const colliderObjects = [];
   const interactables = [];
@@ -496,6 +503,7 @@ export async function createHomeWorld(canvas, photos, onProgress) {
   const batches=batchStaticScene(scene);
   let lighting={precomputed:false,type:'PBR + HDR environment'};
   if(!bakeMode){
+    window.HOME_STARTUP?.stage('点亮老家的房间');
     lighting=await applyLightmaps(scene);
     if(!softwareBackend)cake.refine();
     sun.intensity=0;ambient.intensity=.05;roomLight.intensity=0;lampLight.intensity=0;
@@ -505,6 +513,7 @@ export async function createHomeWorld(canvas, photos, onProgress) {
   finishSurfaceMaterials(scene);
   const softwareMaterials=!bakeMode&&softwareBackend?prepareSoftwareMaterials(scene,lampLight):null;
   const wishShow=!bakeMode?createBirthdayShow({scene,camera,renderer,photoTextures:m.photoTextures,photos,software:softwareBackend}):null;
+  window.HOME_STARTUP?.stage('准备画面和生日演出');
   let warmup=null;if(!bakeMode)warmup=await warmRenderer(renderer,scene,camera,value=>onProgress?.(.96+value*.035),lampLight,birthdayLight);
   if(wishShow){await wishShow.warmup();warmup.programs=renderer.info.programs.length;}
   const playerRadius = .22;

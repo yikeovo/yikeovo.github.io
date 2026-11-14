@@ -23,3 +23,11 @@ dialog{border:1px solid #f3efe144;border-radius:5px;padding:0;background:#f5f1e8
 /* 横屏按钮：仅触屏设备显示，点一下回到横屏全屏 */
 #landscape-btn{display:none}
 @media(pointer:coarse){#landscape-btn{display:flex}}
+
+/* Loading failures remain readable and copyable on a phone. */
+.startup-failed #rotate-prompt,.startup-failed #hud,.startup-failed #top-actions{display:none!important}
+.unavailable{max-height:100dvh;overflow:auto;box-sizing:border-box}
+.startup-details{margin:20px auto 0;max-width:540px;text-align:left}
+.startup-details summary{cursor:pointer;font-size:14px;color:#ddd8c9}
+.startup-details textarea{display:block;width:100%;height:180px;box-sizing:border-box;margin-top:12px;padding:12px;border:1px solid #b5bdad66;border-radius:6px;background:#1b2525;color:#ede6d4;font:12px/1.6 monospace;user-select:text;-webkit-user-select:text}
+.unavailable .startup-copy{min-height:44px;padding:10px 16px;font-size:14px}

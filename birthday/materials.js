@@ -1,5 +1,6 @@
 import * as THREE from './vendor/three.module.js';
-import {limitTextureImages} from './texture-budget.js?v=11';
+import {limitTextureImages} from './texture-budget.js?v=25';
+import {loadAsset} from './asset-loading.js?v=25';
 
 function paintedTexture(draw, size = 512) {
   const canvas = document.createElement('canvas');
@@ -39,16 +40,17 @@ export async function createMaterials(renderer, photos, onProgress) {
   const manager = new THREE.LoadingManager();
   manager.onProgress = (_url, loaded, total) => onProgress?.(loaded / Math.max(1, total));
   const loader = new THREE.TextureLoader(manager);
+  const loadTexture=url=>loadAsset(url,()=>loader.loadAsync(url));
   const urls = photos.map((photo) => photo.src);
-  const loaded = await Promise.all(urls.map((url) => loader.loadAsync(url)));
+  const loaded = await Promise.all(urls.map(loadTexture));
   loaded.forEach((texture) => {
     texture.colorSpace = THREE.SRGBColorSpace;
     texture.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
   });
   const photoTextures = loaded;
-  async function pbr(id){const maps=await Promise.all(['Diffuse','nor_gl','Rough'].map(name=>loader.loadAsync('assets/runtime/pbr/'+id+'/'+name+'.webp')));maps.forEach((t,i)=>{t.colorSpace=i===0?THREE.SRGBColorSpace:THREE.NoColorSpace;t.wrapS=t.wrapT=THREE.RepeatWrapping;t.anisotropy=Math.min(4,renderer.capabilities.getMaxAnisotropy());});return{map:maps[0],normalMap:maps[1],roughnessMap:maps[2]};}
+  async function pbr(id){const maps=await Promise.all(['Diffuse','nor_gl','Rough'].map(name=>loadTexture('assets/runtime/pbr/'+id+'/'+name+'.webp')));maps.forEach((t,i)=>{t.colorSpace=i===0?THREE.SRGBColorSpace:THREE.NoColorSpace;t.wrapS=t.wrapT=THREE.RepeatWrapping;t.anisotropy=Math.min(4,renderer.capabilities.getMaxAnisotropy());});return{map:maps[0],normalMap:maps[1],roughnessMap:maps[2]};}
   const [stone,wallMaps,woodMaps,linenMaps]=await Promise.all([pbr('terrazzo_tiles'),pbr('white_plaster_02'),pbr('wood_table_worn'),pbr('rough_linen')]);
-  const sofaFabric=await loader.loadAsync('assets/textures/memory-jacquard-v16.webp');sofaFabric.colorSpace=THREE.SRGBColorSpace;sofaFabric.wrapS=sofaFabric.wrapT=THREE.RepeatWrapping;sofaFabric.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());
+  const sofaFabric=await loadTexture('assets/textures/memory-jacquard-v16.webp');sofaFabric.colorSpace=THREE.SRGBColorSpace;sofaFabric.wrapS=sofaFabric.wrapT=THREE.RepeatWrapping;sofaFabric.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());
   const oldPaint=paintedTexture((ctx,s)=>{ctx.fillStyle='#609989';ctx.fillRect(0,0,s,s);for(let i=0;i<7500;i++){const x=random()*s,y=random()*s;ctx.fillStyle=['#2b63501b','#c3c4a518','#e3ddbc14','#687a601f'][i%4];ctx.fillRect(x,y,.6+random()*1.4,1+random()*15);}for(let i=0;i<170;i++){ctx.fillStyle='#8c826a28';ctx.fillRect(random()*s,random()*s,1+random()*2,1+random()*5);}},512);
   if(matchMedia('(pointer:coarse)').matches)await limitTextureImages([stone,wallMaps,woodMaps,linenMaps].flatMap(set=>Object.values(set)),1024);
   const floor = paintedTexture((ctx, size) => {

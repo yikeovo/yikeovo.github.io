@@ -1,4 +1,4 @@
-import { createHomeWorld } from './world.js?v=22';
+import { createHomeWorld } from './world.js?v=25';
 import {createMouseLook} from './mouse-look.js?v=22';
 import {installTouchButtons} from './touch-buttons.js?v=22';
 import {HOME_ACTIVITIES} from './activities.js?v=22';
@@ -131,7 +131,7 @@ function openHelp() {
   body.append(list, el('p', 'story-description', '房间位置依照手绘记忆重建。家具、外墙和屋顶是依据有限线索补建的，之后还可以一起调整。'));
   if(world.stats.software){const graphics=el('section','graphics-help');graphics.append(el('strong','','当前正在用软件渲染'),el('p','','电脑上请在浏览器设置中打开“可用时使用图形加速”，然后重启浏览器。这能让三维画面使用显卡，兼顾清晰度和流畅度。'));const address=el('code','',/Edg\//.test(navigator.userAgent)?'edge://settings/system':'chrome://settings/system');graphics.append(address,el('p','','将上面的地址复制到浏览器地址栏。软件兼容模式下，停下后画面会恢复更高的清晰度。'));body.append(graphics);}
   const copy=el('button','paper-link','复制运行信息');copy.type='button';
-  copy.addEventListener('click',async()=>{const report=JSON.stringify({version:'0.22',viewport:[innerWidth,innerHeight],dpr:devicePixelRatio,...world.stats},null,2);try{await navigator.clipboard.writeText(report);copy.textContent='已复制，可发给我排查卡顿';}catch{const field=el('textarea','runtime-report');field.value=report;field.readOnly=true;body.append(field);field.select();copy.textContent='请复制下面的运行信息';}});body.append(copy);
+  copy.addEventListener('click',async()=>{const report=JSON.stringify({version:'0.25',viewport:[innerWidth,innerHeight],dpr:devicePixelRatio,...world.stats},null,2);try{await navigator.clipboard.writeText(report);copy.textContent='已复制，可发给我排查卡顿';}catch{const field=el('textarea','runtime-report');field.value=report;field.readOnly=true;body.append(field);field.select();copy.textContent='请复制下面的运行信息';}});body.append(copy);
   const guide=el('button','paper-link','回到院门，陪我去生日桌 ↗');guide.type='button';guide.addEventListener('click',()=>{storyDialog.close();startGuidedWalk(true);});body.append(guide);
   showDialog(storyDialog);
 }
@@ -341,6 +341,7 @@ async function init() {
     arrival=createArrivalGuide({world,onUpdate(data){setText('arrival-title',data.title);setText('arrival-description',data.description);$('arrival-progress').style.transform='scaleX('+data.progress+')';},onFinish(){hideGuide();openBirthday();},onCancel(reason){hideGuide();clearMovement();canvas.focus({preventScroll:true});if(reason==='blocked')notify('先停下来歇一歇，可以点画面自己走走。');}});
     roomGuide=createRoomGuide({world,onUpdate(data){setText('arrival-title',data.title);setText('arrival-description',data.description);$('arrival-progress').style.transform='scaleX('+data.progress+')';},onFinish(place){hideGuide();clearMovement();if(place.birthday)openBirthday();else{canvas.focus({preventScroll:true});notify('到了，'+(place.action?place.title+'，就在眼前。':'在'+place.title+'慢慢看看。'));}},onCancel(reason){hideGuide();clearMovement();canvas.focus({preventScroll:true});if(reason==='blocked')notify('先停在这里，点画面可以自己接着走。');}});
     homeGuide=createHomeGuide({getWorld:()=>world,onOpen(){arrival?.cancel();roomGuide?.cancel();clearMovement();mouseLook.release();},onGo(plan,place){clearMovement();mouseLook.release();$('arrival-guide').hidden=false;setText('arrival-title','去'+place.title);setText('arrival-description','陪你沿着家里的路走过去。');$('arrival-progress').style.transform='scaleX(0)';document.body.classList.add('guided-arrival');roomGuide.start(plan,place);}});
+    window.HOME_STARTUP?.ready();
     $('loading-fill').style.width = '100%'; $('begin-label').textContent = '推开院门，回家'; $('begin').disabled = false;
     $('loading-note').textContent = '电脑：鼠标转头，WASD 走动。手机：左手摇杆，右手滑动。';
     $('begin-guided').disabled=false;if(matchMedia('(prefers-reduced-motion: reduce)').matches)$('guided-label').textContent='直接去生日桌';
@@ -356,8 +357,8 @@ async function init() {
     addEventListener('resize', () => world.resize());
   } catch (error) {
     console.error('Home initialization failed', error);
-    $('unavailable').hidden = false; $('welcome').hidden = true;
-    $('unavailable-message').textContent = '当前浏览器暂时没能加载三维场景。可以换系统浏览器打开，或稍后刷新再试。';
+    if(window.HOME_STARTUP)window.HOME_STARTUP.fail(error);
+    else{$('unavailable').hidden=false;$('welcome').hidden=true;$('unavailable-message').textContent='老家暂时没能加载完成，请刷新后再试。';}
   }
 }
 init();
