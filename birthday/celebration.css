@@ -1,0 +1,76 @@
+/* A quiet table, real pastry, and a warm editorial rhythm. */
+#birthday-dialog{position:fixed;inset:0;margin:0;padding:0;width:100%;max-width:none;height:100%;max-height:none;border:0;border-radius:0;background:linear-gradient(90deg,#171e1608 35%,#182019b0 63%,#182019f7 100%);box-shadow:none;overflow:hidden;color:#f2ecdd;pointer-events:none}
+#birthday-dialog::backdrop{background:transparent;backdrop-filter:none}
+#birthday-dialog .dialog-close{position:absolute;top:28px;right:34px;width:46px;height:46px;background:#f0e5cc0d;border:1px solid #e1d4b233;border-radius:50%;color:#eee4cc;font:26px/1 var(--sans);pointer-events:auto;z-index:4}
+.celebrating .topbar,.celebrating .location,.celebrating .crosshair,.celebrating .walk-hint,.celebrating .performance-badge{visibility:hidden!important}
+#birthday-dialog .birthday-paper{position:absolute;right:7vw;top:50%;transform:translateY(-50%);width:min(355px,30vw);padding:0;text-align:left;pointer-events:auto}
+#birthday-dialog .paper-kicker{display:flex;align-items:center;gap:12px;color:#cfb687;font:10px/1.5 var(--sans);letter-spacing:3px;margin:0 0 25px}
+#birthday-dialog .paper-kicker:before{content:'';width:27px;height:1px;background:#c3ab79}
+#birthday-dialog h2{font:400 clamp(34px,3.1vw,49px)/1.55 var(--serif);letter-spacing:3px;color:#f5eddb;margin:0 0 17px;text-wrap:balance}
+#birthday-dialog #birthday-instruction{font:12px/2.2 var(--sans);letter-spacing:1px;color:#e6dfc8a6;margin:0 0 27px;max-width:320px}
+.birthday-date{position:absolute;top:35px;left:5vw;font:10px/1.7 var(--sans);letter-spacing:3px;color:#ece1c2a3;text-shadow:0 1px 9px #1d211a80}
+.birthday-date b{font:400 28px/1.4 var(--serif);display:block;letter-spacing:2px;color:#eee6d5}
+.birthday-caption{position:absolute;left:5vw;bottom:42px;font:11px/2 var(--serif);letter-spacing:2px;color:#eee2c8;pointer-events:none;text-shadow:0 1px 9px #1d211a80}
+.birthday-caption span{display:block;font:8px/1.8 var(--sans);letter-spacing:2px;margin-top:7px;color:#e8dec364}
+.cake-orbit{position:absolute;left:0;top:0;width:62%;height:100%;pointer-events:auto;touch-action:none;cursor:grab}
+.cake-orbit.dragging{cursor:grabbing}
+#birthday-dialog .paper-button{width:100%;border:1px solid #c8b589;background:#dfd0ae;color:#283526;border-radius:3px;min-height:51px;padding:14px 23px;font:12px/1.6 var(--sans);letter-spacing:2px;transition:background .18s,transform .18s}
+#birthday-dialog .paper-button:hover{background:#efe3c7;transform:translateY(-1px)}
+#birthday-dialog .paper-button:disabled{opacity:.65;cursor:wait}
+#birthday-dialog .real-candle-controls{position:static!important;justify-content:flex-start;gap:10px;margin:23px 0 11px;min-height:37px}
+#birthday-dialog .candle{display:flex;align-items:center;justify-content:center;gap:10px;position:static;min-width:0;width:60px;min-height:35px;height:35px;border:1px solid #d5c39a38;border-radius:30px;background:#b39d6d0b;padding:6px 10px;color:#d4c3a1;inset:auto!important}
+#birthday-dialog .candle:disabled{cursor:default}#birthday-dialog .candle.out{opacity:.4;background:transparent;color:#d4c3a1;border-color:#d5c39a22}
+.candle-drawing{position:relative;display:block;width:4px;height:12px;border-radius:1px;background:#d9c7a0}
+.candle-drawing:before{content:'';position:absolute;width:5px;height:8px;bottom:15px;left:-.5px;border-radius:70% 30% 60% 40%;background:#e8b95c;box-shadow:0 0 9px #f4c06d55;transform:rotate(12deg)}
+#birthday-dialog[data-phase=unlit] .candle-drawing:before,#birthday-dialog .candle.out .candle-drawing:before{display:none}
+.candle-number{font:8px var(--sans);letter-spacing:1px}
+#birthday-dialog #candle-count{font:9px/1.9 var(--sans);letter-spacing:1px;color:#e8ddbf6e;margin:0;min-height:18px}
+#birthday-dialog .paper-link{border:0;background:transparent;color:#e4d4b2;cursor:pointer;letter-spacing:1px;min-height:40px;padding:10px 0;font:10px/1.8 var(--sans)}
+#birthday-dialog #birthday-letter-preview{margin-top:12px;color:#d5ccb485}
+#birthday-dialog #birthday-reveal .paper-button{margin:7px 0 11px}
+#birthday-dialog #birthday-reveal .paper-link{display:inline-block;font-size:10px;margin:0 17px 0 0;padding:8px 0}
+#birthday-dialog .birthday-wish{font:13px/2 var(--serif);color:#e4d8b8;letter-spacing:2px;margin:0 0 19px}
+.birthday-steps{display:flex;gap:19px;border-top:1px solid #d2c29d21;margin-top:32px;padding-top:17px;font:8px/1.8 var(--sans);letter-spacing:1px;color:#d5c9aa48}
+.birthday-steps span.current{color:#d9c495}
+#birthday-dialog[data-phase=complete] .real-candle-controls{display:none}
+#birthday-dialog[data-phase=complete] h2{color:#f4e7c5}
+#birthday-dialog[data-phase=complete] .birthday-paper{animation:birthday-reveal .65s ease both}
+@keyframes birthday-reveal{from{opacity:0;translate:0 10px}to{opacity:1;translate:0 0}}
+/* The envelope opens on request; the actual letter is immediately readable. */
+.story-dialog:has(.letter-envelope),.story-dialog:has(.letter-sheet){width:min(720px,calc(100% - 40px));background:#eee8d9;border-color:#e1d6c0;border-radius:4px;box-shadow:0 24px 100px #0005}
+.letter-envelope{display:block;width:min(460px,100%);height:230px;margin:32px auto 35px;position:relative;border:1px solid #c9b996;border-radius:3px;background:linear-gradient(155deg,#e0d1b3,#eee1c8);box-shadow:0 10px 25px #78654421;color:#5d5a45;cursor:pointer;overflow:hidden}
+.letter-envelope:before{content:'';position:absolute;inset:0;background:#d2bf9c;clip-path:polygon(0 0,100% 0,50% 60%)}
+.letter-envelope:after{content:'';position:absolute;inset:0;background:#eadcc0;clip-path:polygon(0 100%,0 5%,50% 63%,100% 5%,100% 100%)}
+.envelope-address{position:absolute;z-index:1;left:27px;bottom:28px;font:18px/1.8 var(--serif);letter-spacing:4px}
+.envelope-seal{position:absolute;z-index:2;left:50%;top:49%;translate:-50% -50%;display:grid;place-items:center;width:48px;height:48px;background:#985a44;border:3px double #d0a4808c;border-radius:50%;color:#eddbc1;font:22px/1 var(--serif);box-shadow:0 3px 8px #5e34222e}
+.envelope-open{display:block;color:#8d7f62;text-align:center;font:10px/1.8 var(--sans);letter-spacing:2px}
+.letter-sheet{background:#f8f1e2;border:1px solid #d8cbb0;padding:35px 38px;box-shadow:0 5px 20px #8d79480c;animation:letter-unfold .55s ease both;position:relative}
+.letter-sheet:before{content:'家书';display:block;font:10px/1.5 var(--sans);letter-spacing:7px;color:#aa8f64;padding-bottom:22px;margin-bottom:25px;border-bottom:1px solid #dbceb3}
+.letter-sheet p{font:16px/2.25 var(--serif);letter-spacing:1px;color:#575945;margin-bottom:17px}
+.letter-sheet p:first-of-type{font-size:21px;margin-bottom:22px;color:#3e4b38}
+.letter-sheet .letter-signature{font-size:11px;line-height:2.2;color:#998261;margin:30px 0 0}
+@keyframes letter-unfold{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+/* Keep room controls compact so new objects can be seen. */
+.journey{border-radius:30px!important;padding:10px 16px!important;max-width:300px!important}.journey>small{display:none}.journey>span{font-size:10px;letter-spacing:1px}
+.glass-button{border-radius:7px;background:#28352b9c!important}.world-object-hint{box-shadow:none;font-size:9px;background:#26382dd9;min-height:36px;padding:5px 10px 5px 5px}.world-object-hint>span:first-child{width:23px;height:23px;font-size:17px}
+@media(max-width:759px),(max-aspect-ratio:23/20){
+ #birthday-dialog{background:linear-gradient(180deg,#18201900 28%,#18201916 43%,#182019f2 64%,#182019 100%)}
+ #birthday-dialog .dialog-close{top:19px;right:19px;width:38px;height:38px;font-size:23px}
+ .birthday-date{left:24px;top:23px;font-size:8px;letter-spacing:2px}.birthday-date b{font-size:22px}
+ .cake-orbit{width:100%;height:58%}.birthday-caption{display:none}
+ #birthday-dialog .birthday-paper{top:auto;bottom:max(24px,env(safe-area-inset-bottom));right:25px;left:25px;transform:none;width:auto;text-align:center;max-height:42%;overflow:auto;scrollbar-width:thin}
+ #birthday-dialog .paper-kicker{justify-content:center;font-size:8px;letter-spacing:2px;margin-bottom:9px}#birthday-dialog .paper-kicker:before{width:17px}
+ #birthday-dialog h2{font-size:32px;line-height:1.5;margin-bottom:8px;letter-spacing:2px}
+ #birthday-dialog #birthday-instruction{font-size:10px;line-height:1.9;margin:0 auto 15px;max-width:300px}
+ #birthday-dialog .paper-button{max-width:330px;min-height:46px;font-size:11px;padding:11px 15px}
+ #birthday-dialog .real-candle-controls{justify-content:center;margin:16px 0 7px;gap:11px;min-height:32px}
+ #birthday-dialog .candle{height:31px;min-height:31px;width:52px}
+ #birthday-dialog #candle-count{font-size:8px}
+ #birthday-dialog #birthday-letter-preview{font-size:9px;min-height:30px;margin-top:3px;padding:6px 0}
+ .birthday-steps{justify-content:center;gap:20px;padding-top:11px;margin-top:12px;font-size:7px}
+ #birthday-dialog .birthday-wish{font-size:12px;margin-bottom:11px}#birthday-dialog #birthday-reveal .paper-link{font-size:9px;margin:0 10px}
+ .letter-envelope{height:190px;margin:22px auto}.letter-sheet{padding:24px 21px}.letter-sheet p{font-size:15px;line-height:2.1}
+}
+@media(max-height:620px) and (orientation:portrait){#birthday-dialog .birthday-paper{bottom:16px;max-height:45%}#birthday-dialog h2{font-size:26px}#birthday-dialog .real-candle-controls{margin-top:11px}.birthday-steps{display:none}#birthday-dialog .paper-kicker{display:none}}
+@media(max-height:620px) and (orientation:landscape){#birthday-dialog .birthday-paper{width:32vw;right:5vw;max-height:88vh;overflow:auto}#birthday-dialog h2{font-size:28px;line-height:1.4}#birthday-dialog .paper-kicker{margin-bottom:11px}#birthday-dialog #birthday-instruction{margin-bottom:15px;font-size:10px}.birthday-steps{margin-top:15px;padding-top:10px}#birthday-dialog .real-candle-controls{margin-top:15px}.birthday-caption{bottom:23px;font-size:9px}.birthday-date{top:22px}.birthday-date b{font-size:20px}}
+@media(prefers-reduced-motion:reduce){#birthday-dialog *, .letter-sheet{animation:none!important;transition:none!important}}

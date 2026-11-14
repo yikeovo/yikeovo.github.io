@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#242b2a">
+  <meta name="description" content="从老家的门口出发，走进记忆里的房间，看看照片，为爸爸过生日。">
+  <title>回家 · 给爸爸的生日礼物</title>
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="walk.css?v=22">
+  <link rel="stylesheet" href="polish.css?v=22">
+  <link rel="stylesheet" href="celebration.css?v=22">
+  <link rel="stylesheet" href="birthday-show.css?v=22">
+  <link rel="stylesheet" href="arrival-keepsake.css?v=22">
+  <link rel="stylesheet" href="premium.css?v=22">
+  <link rel="stylesheet" href="home-guide.css?v=22">
+  <script type="importmap">{"imports":{"three":"./vendor/three.module.js"}}</script>
+  <script src="content.js?v=22" defer></script>
+  <script type="module" src="walk.js?v=22"></script>
+</head>
+<body>
+  <main id="experience" aria-label="可自由行走的三维老家">
+    <canvas id="world" aria-label="三维老家。电脑移动鼠标转头，用键盘行走；手机用摇杆和右侧滑动探索。" tabindex="0"></canvas>
+    <div class="vignette" aria-hidden="true"></div>
+    <header class="topbar">
+      <a class="wordmark" href="./" aria-label="重新从老家门口开始"><span class="house-symbol">⌂</span><span>回 家<small>A WAY BACK HOME</small></span></a>
+      <div class="top-actions" id="top-actions" hidden>
+        <button id="quality-toggle" class="glass-button" aria-label="切换为流畅画质"><span aria-hidden="true">◈</span><span id="quality-label" class="optional-label">清晰</span></button>
+        <button id="album-open" class="glass-button" aria-label="打开家庭相册"><span aria-hidden="true">▧</span><span>旧照片</span></button>
+        <button id="help-open" class="glass-button" aria-label="查看操作说明"><span aria-hidden="true">?</span><span class="optional-label">怎么走</span></button>
+        <button id="sound-toggle" class="glass-button" aria-pressed="false" aria-label="播放收音机音乐"><span aria-hidden="true">♫</span><span id="sound-label" class="optional-label">音乐</span></button>
+      </div>
+      <span id="dedication" class="dedication">给爸爸 / 2026.11.13</span>
+    </header>
+    <section class="welcome" id="welcome" aria-labelledby="welcome-title">
+      <div class="welcome-copy">
+        <p class="kicker"><span></span>一份能走进去的生日礼物</p>
+        <h1 id="welcome-title">再推开一次，<br><em>家的门。</em></h1>
+        <p class="welcome-description">有些地方，已经好久没回去了。<br>爸，今天想陪你回家坐坐。</p>
+        <button class="begin-button" id="begin" disabled><span id="begin-label">正在把老家慢慢搭好</span><span class="begin-arrow" aria-hidden="true">↗</span></button>
+        <button class="guided-choice" id="begin-guided" disabled><span id="guided-label">陪我走到生日桌</span><span aria-hidden="true">→</span></button>
+        <div class="loading-track" id="loading-track"><span id="loading-fill"></span></div>
+        <p class="loading-note" id="loading-note" role="status" aria-live="polite">正在准备房间、家具和家里的照片……</p>
+      </div>
+      <div class="welcome-bottom"><span>循着记忆里的路，自由走一走。</span><span>据记忆重建 · 房间细节还可以慢慢补齐</span></div>
+    </section>
+    <div class="hud" id="hud" hidden>
+      <button id="resume-look" class="resume-look">点击继续漫游 <span>鼠标转头 · Esc 释放</span></button>
+      <span class="performance-badge"><span class="build-label">v0.22 · </span><span id="fps-label">准备中</span></span>
+      <div id="object-hints" class="object-hints"></div>
+      <div class="location"><span class="location-indicator"></span><div><span id="location-name">院门口</span><small id="location-note">从南墙东端的院门走进来。</small></div></div>
+      <button class="journey" id="activities-open" aria-label="看看家里能做的小事"><span class="journey-heading">留在家里的小事</span><span id="journey-count">旧照片 0 / 6 · 家里小事 0 / 6</span><small id="journey-note">倒杯茶，坐坐沙发，翻翻抽屉。</small></button>
+      <button class="stand-up subtle-button" id="stand-up" hidden>从沙发上起身 ↗</button>
+      <div class="crosshair" id="crosshair" aria-hidden="true"><span></span></div>
+      <button class="interaction-prompt" id="interact" hidden><span class="interaction-key" aria-hidden="true">E</span><span><strong id="interact-title"></strong><small id="interact-description">点一下，看看这里的故事</small></span><span aria-hidden="true">↗</span></button>
+      <div class="walk-hint" id="walk-hint"><span class="desktop-hint"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> 移动 <i>·</i> 鼠标转头 <i>·</i> E 或左键互动 <i>·</i> Esc 释放</span><span class="mobile-hint">左手摇杆走动 · 右手滑动看四周</span></div>
+      <div class="bottom-actions"><button id="reset-position" class="subtle-button">↶ 回到院门</button><button id="map-toggle" class="subtle-button" aria-expanded="false" aria-haspopup="dialog" aria-controls="explore-dialog" title="打开老家导览（M）">⌖ 看看方向</button></div>
+      <div id="joystick" class="joystick" aria-label="移动摇杆，按住拖动" role="group"><div class="joystick-ring"><span id="joystick-thumb"></span></div><span class="joystick-label">走一走</span></div>
+      <div class="look-hint" aria-hidden="true"><span>↔</span>滑动看四周</div>
+    </div>
+    <section id="arrival-guide" class="arrival-guide" hidden aria-label="从院门走到生日桌的带路">
+      <div><span class="arrival-kicker">陪你回家</span><h2 id="arrival-title">推开院门</h2><p id="arrival-description">先走进院子，慢慢来。</p></div><button id="arrival-cancel">自己走走 ↗</button><div class="arrival-track"><span id="arrival-progress"></span></div>
+    </section>
+    <section class="unavailable" id="unavailable" hidden role="alert"><h2>暂时没能打开这扇门</h2><p id="unavailable-message">当前浏览器无法运行三维场景。可以试着用系统浏览器或电脑打开。</p><button class="begin-button" onclick="location.reload()">再试一次 ↗</button></section>
+  </main>
+  <dialog id="story-dialog" class="story-dialog" aria-labelledby="story-heading"><button class="dialog-close" id="story-close" aria-label="回到屋子里">×</button><div id="story-body" class="story-body"></div></dialog>
+  <dialog id="explore-dialog" class="home-guide" aria-labelledby="explore-heading"></dialog>
+  <dialog id="birthday-dialog" class="birthday-dialog" aria-labelledby="birthday-heading">
+    <button class="dialog-close" id="birthday-close" aria-label="回到大堂">×</button>
+    <div class="birthday-date">A DAY TO REMEMBER<b id="birthday-date-value">2026 · 11 · 13</b>给爸爸 / 一年一次的庆祝</div>
+    <div id="cake-orbit" class="cake-orbit" role="group" aria-label="拖动查看三维蛋糕，点击烛光互动"></div>
+    <div class="birthday-caption">老家的灯亮着。<br>今天，陪你一起过生日。<span>拖动画面，看一看蛋糕的细节</span></div>
+    <div class="birthday-paper"><p class="paper-kicker">今天，家里的主角是你</p><h2 id="birthday-heading">为你点一盏烛光。</h2><p id="birthday-instruction">在熟悉的屋子里，陪你再过一个生日。</p>
+      <button id="birthday-action" class="paper-button">点亮蜡烛</button>
+      <div class="real-candle-controls" id="cake-candles"></div>
+      <p class="candle-count" id="candle-count" role="status" aria-live="polite">点亮烛光，再许一个愿。</p>
+      <button class="paper-link" id="birthday-letter-preview">先读一封写给你的信 ↗</button>
+      <div id="birthday-reveal" hidden><p class="birthday-wish">新的一岁，平安，健康，常开心。</p><button class="paper-button" id="birthday-letter">读一封给你的信 ↗</button><button class="paper-link" id="save-card">保存生日纪念卡 ↓</button><button class="paper-link" id="customize-card">选一张合照，写一句祝福 ↗</button><button class="paper-link" id="wish-replay">重看这场生日星光 ✧</button><button class="paper-link" id="relight">再许一次愿</button></div>
+      <div id="birthday-steps" class="birthday-steps" aria-hidden="true"><span class="current">01 点亮烛光</span><span>02 留个心愿</span><span>03 生日快乐</span></div>
+    </div>
+    <section id="wish-show" class="wish-show" hidden aria-label="给爸爸的生日星光演出">
+      <button id="wish-field" class="wish-field" type="button" aria-label="点按星空送出一束祝福，点照片查看完整原图"></button>
+      <div class="wish-show-top"><span class="wish-brand">回 家 <i>/</i><span class="wish-brand-sub">A WISH FOR YOU</span></span><div><button id="wish-pause" aria-pressed="false" aria-label="暂停生日演出">Ⅱ 暂停</button><button id="wish-sound" aria-pressed="false" aria-label="开启生日礼乐">♫ 礼乐</button><button id="wish-skip">直接看祝福 ↗</button></div></div>
+      <div class="wish-show-heading"><span id="wish-act">01 / 一盏烛光</span><h3 id="wish-line">这一次，换我们为你点亮星光。</h3><p id="wish-interaction-note" class="wish-interaction-note">轻点星空，为爸爸再点亮一束光。</p><button id="wish-photos" class="wish-photos" hidden>暂停看看旧照片 ↗</button><button id="wish-charge" class="wish-charge" hidden aria-label="按住蓄光，松开为爸爸绽放烟花"><span>按住蓄光 · 松开绽放</span><b aria-hidden="true">✧</b></button></div>
+      <div class="wish-show-bottom"><p id="wish-caption" role="status" aria-live="polite">把心愿留给烛光，把惊喜留给你。</p><span id="wish-dedication">FOR DAD · 2026.11.13</span><div class="wish-timeline"><span id="wish-progress"></span></div></div>
+    </section>
+  </dialog>
+  <dialog id="keepsake-dialog" class="story-dialog keepsake-dialog" aria-labelledby="keepsake-heading">
+    <button id="card-close" class="dialog-close" aria-label="回到生日桌">×</button>
+    <div class="keepsake-body"><p class="paper-kicker">把今天，留在一张照片里</p><h2 id="keepsake-heading">给爸爸的生日纪念</h2><p class="keepsake-intro">选一张合照，写一句想说的话。做好后保存为图片，留作今天的纪念。</p>
+      <div class="keepsake-grid"><div class="keepsake-fields"><fieldset><legend>选一张家里的照片</legend><div id="card-photos" class="card-photos"></div></fieldset><label for="card-wish">生日祝福 <span>最多 56 字</span></label><input id="card-wish" type="text" maxlength="56" autocomplete="off"><label for="card-signature">署名 <span>最多 20 字</span></label><input id="card-signature" type="text" maxlength="20" autocomplete="off"><button id="card-reset" class="paper-link">恢复默认</button></div>
+        <figure class="keepsake-preview"><canvas id="card-preview" width="0" height="0" aria-label="生日纪念卡预览"></canvas><figcaption id="card-status" role="status" aria-live="polite">正在准备这张纪念卡…</figcaption></figure>
+      </div>
+      <div class="keepsake-footer"><button id="card-review" class="card-footer-link">看看预览 ↑</button><button id="card-back" class="card-footer-link">回到生日桌</button><button id="card-download" class="paper-button">保存这张纪念卡 ↓</button></div>
+    </div>
+  </dialog>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>
