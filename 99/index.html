@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>永远差 1% 的进度条</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: "PingFang SC", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+    background: linear-gradient(160deg, #fff7ed 0%, #ffedd5 55%, #fed7aa 100%);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 16px;
+    color: #431407;
+  }
+  .card {
+    background: #fff;
+    border-radius: 20px;
+    box-shadow: 0 12px 40px rgba(194, 120, 40, .18);
+    max-width: 560px;
+    width: 100%;
+    padding: 32px 28px 28px;
+    text-align: center;
+  }
+  h1 { font-size: 26px; margin-bottom: 6px; }
+  .sub { color: #9a6b3f; font-size: 14px; margin-bottom: 26px; }
+  .bar-wrap {
+    background: #ffedd5;
+    border-radius: 999px;
+    height: 34px;
+    overflow: hidden;
+    position: relative;
+    border: 2px solid #fdba74;
+  }
+  .bar-fill {
+    height: 100%;
+    width: 99%;
+    background: linear-gradient(90deg, #f97316, #ea580c);
+    border-radius: 999px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 10px;
+    color: #fff;
+    font-weight: 700;
+    font-size: 15px;
+    transition: width .45s ease;
+  }
+  .bar-fill.shake { animation: shake .4s ease; }
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-6px); }
+    40% { transform: translateX(6px); }
+    60% { transform: translateX(-4px); }
+    80% { transform: translateX(4px); }
+  }
+  .face { font-size: 52px; margin: 18px 0 4px; }
+  .say {
+    min-height: 52px;
+    font-size: 17px;
+    line-height: 1.6;
+    margin: 8px 0 20px;
+  }
+  .btns { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+  button {
+    border: none;
+    border-radius: 999px;
+    padding: 11px 20px;
+    font-size: 15px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: transform .12s ease, box-shadow .12s ease;
+  }
+  button:hover { transform: translateY(-2px); }
+  button:active { transform: translateY(0); }
+  .btn-main { background: #ea580c; color: #fff; box-shadow: 0 4px 14px rgba(234, 88, 12, .35); }
+  .btn-deal { background: #fff7ed; color: #9a3412; border: 1.5px solid #fdba74; }
+  .log {
+    margin-top: 22px;
+    text-align: left;
+    background: #fffbeb;
+    border: 1px dashed #fbbf24;
+    border-radius: 12px;
+    padding: 12px 16px;
+    font-size: 13.5px;
+    line-height: 1.8;
+    color: #78350f;
+    max-height: 150px;
+    overflow-y: auto;
+  }
+  .log b { color: #92400e; }
+  .count { margin-top: 14px; font-size: 13px; color: #b45309; }
+  footer { margin-top: 26px; font-size: 12.5px; color: #b45309; text-align: center; }
+  footer a { color: #b45309; }
+</style>
+</head>
+<body>
+  <div class="card">
+    <h1>永远差 1% 的进度条</h1>
+    <p class="sub">它已经卡在 99% 很久了，而且一点都不着急。</p>
+
+    <div class="bar-wrap">
+      <div class="bar-fill" id="fill">99%</div>
+    </div>
+    <div class="face" id="face">😤</div>
+    <p class="say" id="say">别看了，就是 99%。最后这 1%，我说了算。</p>
+
+    <div class="btns">
+      <button class="btn-main" id="pushBtn">帮它冲到 100%</button>
+    </div>
+    <div class="btns" style="margin-top:10px">
+      <button class="btn-deal" data-deal="奶茶">🧋 请你喝奶茶</button>
+      <button class="btn-deal" data-deal="放假">🌴 给你放一天假</button>
+      <button class="btn-deal" data-deal="不催">🤫 以后不催你了</button>
+    </div>
+
+    <div class="log" id="log"><b>进度条的心里话：</b><br>· 99% 挺好的，100% 就意味着结束，我才不要结束。</div>
+    <p class="count" id="count">你已经催了它 0 次</p>
+  </div>
+  <footer>yike.loc.cc · 一个永远差 1% 的进度条<br><a href="/">回首页</a></footer>
+
+<script>
+(function () {
+  var fill = document.getElementById('fill');
+  var face = document.getElementById('face');
+  var say = document.getElementById('say');
+  var log = document.getElementById('log');
+  var countEl = document.getElementById('count');
+  var pushes = 0;
+  var pct = 99;
+
+  var refusals = [
+    ['😤', '不行。差 1% 是我的底线，也是我的人设。'],
+    ['🙄', '你点得再快，我也不会动的。'],
+    ['😴', '我困了，1% 明天再说。'],
+    ['🤨', '100% 有什么好？到了 100% 你就把我忘了。'],
+    ['😝', '略略略，够不着吧。'],
+    ['🥱', '这 1% 很重，搬不动。'],
+    ['😌', '99% 是艺术，你们不懂。'],
+    ['🤔', '让我想想……想好了，还是不行。']
+  ];
+
+  var deals = {
+    '奶茶': [
+      ['🤨', '奶茶？先拿来我看看。', '访客许诺了一杯奶茶，进度条表示要先验货。'],
+      ['😋', '好喝！看在奶茶的份上……给你 0.5%。', '进度条喝到了奶茶，勉强涨到 99.5%，然后又滑回了 99%。'],
+      ['😤', '奶茶喝完了，1% 还是我的。', '奶茶喝完了，进度条翻脸不认人。']
+    ],
+    '放假': [
+      ['😲', '放假？真的假的？', '进度条听说要放假，眼睛亮了一下。'],
+      ['😎', '行吧，那我先去度个假，1% 回来再说。', '进度条去度假了，走之前把进度锁在了 99%。'],
+      ['😤', '度假回来啦，1% 还在，别想了。', '进度条度假归来，丝毫没有松口的意思。']
+    ],
+    '不催': [
+      ['🥺', '你保证？', '访客保证以后不催了，进度条有点心动。'],
+      ['😌', '行，你不催我，我也不动，咱俩就这么耗着。', '双方达成停战协议：你不催，我不动。'],
+      ['😤', '……你刚才是不是又催了？', '进度条怀疑你刚才那句话就是在催它。']
+    ]
+  };
+  var dealStep = { '奶茶': 0, '放假': 0, '不催': 0 };
+
+  function setPct(p, label) {
+    pct = p;
+    fill.style.width = p + '%';
+    fill.textContent = label || (p + '%');
+  }
+  function addLog(text) {
+    var div = document.createElement('div');
+    div.textContent = '· ' + text;
+    log.appendChild(div);
+    log.scrollTop = log.scrollHeight;
+  }
+  function shake() {
+    fill.classList.remove('shake');
+    void fill.offsetWidth;
+    fill.classList.add('shake');
+  }
+
+  document.getElementById('pushBtn').addEventListener('click', function () {
+    pushes++;
+    countEl.textContent = '你已经催了它 ' + pushes + ' 次';
+    var r = refusals[Math.floor(Math.random() * refusals.length)];
+    face.textContent = r[0];
+    say.textContent = r[1];
+    shake();
+    if (pushes === 10) {
+      setPct(100, '100%！');
+      face.textContent = '😱';
+      say.textContent = '等等……100% 了？！开玩笑的——';
+      addLog('进度条一不小心冲到了 100%，吓得立刻缩了回去。');
+      setTimeout(function () {
+        setPct(99);
+        face.textContent = '😤';
+        say.textContent = '吓死我了，还好回来了。99%，老地方见。';
+      }, 1200);
+    } else if (pushes % 5 === 0) {
+      addLog('访客第 ' + pushes + ' 次尝试，进度条纹丝不动。');
+    }
+  });
+
+  document.querySelectorAll('[data-deal]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var key = btn.getAttribute('data-deal');
+      var steps = deals[key];
+      var i = dealStep[key] % steps.length;
+      dealStep[key]++;
+      var s = steps[i];
+      face.textContent = s[0];
+      say.textContent = s[1];
+      addLog(s[2]);
+      if (key === '奶茶' && i === 1) {
+        setPct(99.5, '99.5%');
+        setTimeout(function () { setPct(99); }, 1600);
+      }
+      shake();
+    });
+  });
+
+  fill.addEventListener('click', function () {
+    face.textContent = '😳';
+    say.textContent = '别戳我，痒。';
+  });
+})();
+</script>
+</body>
+</html>
